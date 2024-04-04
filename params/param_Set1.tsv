@@ -1,0 +1,10 @@
+folder=tests
+r_obj=tests/atlas_liver_sample_simConditions.h5ad
+q_obj=tests/query_liver_sample_simSample.h5ad
+r_name=liverAtlas
+q_name=liverQueryHenderson
+r_batch_key=dataset
+q_batch_key=sample_id
+n_top_genes=500
+flavor=seurat_v3
+meta=category,cell_type
