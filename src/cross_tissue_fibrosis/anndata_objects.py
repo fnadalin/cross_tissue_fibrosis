@@ -56,6 +56,8 @@ def subset_by_obs(adata, meta, values):
 
 
 def subset_by_features(adata, features):
+    index = adata.var.index.isin(features)
+    features = adata.var.index[index]
     adata = adata[:,features]
     return adata.copy()
 
