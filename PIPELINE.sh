@@ -1,5 +1,13 @@
 
-PARAMS="params/param_Set1.tsv"
+# PARAMS="params/param_Set1.tsv"
+
+if [[ $# -lt 1 ]]
+then
+    echo "Usage: $0 <param_file>"
+    exit
+fi
+
+PARAMS=$1
 
 # create embeddings
 conda activate scvi-env
