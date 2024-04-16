@@ -34,6 +34,8 @@ source(file.path(DIR, "differential_expression.R"))
 source(file.path(DIR, "paths.R"))
 setwd(WORKING_DIR)
 
+cat("==== Differential expression ====\n")
+
 ### execute
 
 params <- read.table(PARAMS, sep = "=")
@@ -52,6 +54,7 @@ q_obj <- create_obj_file(q_obj_dir)
 q_milo_dir <- create_milo_path(folder, q_name, q_batch_key, n_top_genes, flavor)
 
 # scVI
+cat("Run miloDE on scVI\n")
 q_milo <- create_scvi_mod_query(q_milo_dir, r_name)
 out_miloDE_scvi_prefix <- paste0(q_milo, "_miloDE")
 latent_id <- paste0("X_scvi_", r_name)
@@ -65,6 +68,7 @@ for (m in meta) {
 
 # scANVI
 for (m in meta) {
+    cat(paste0("Run miloDE on scANVI ", m, "\n"))
     q_milo <- create_scanvi_mod_query(q_milo_dir, r_name, m) 
     out_miloDE_scanvi_prefix <- paste0(q_milo, "_miloDE")
     latent_id <- paste0("X_scanvi_", r_name, "_", m)
