@@ -8,7 +8,7 @@ import scvi
 
 # UserWarning: Since v1.0.0, scvi-tools no longer uses a random seed by default
 scvi.settings.seed = 0
-TESTING_MODE = True
+TESTING_MODE = False
 
 ### functions
 
@@ -139,9 +139,9 @@ def run_scANVI_query(adata, ref_mod, q_mod, meta, ref_name):
     )
     max_epochs = 100
     if TESTING_MODE:
-        max_epochs = 10 # FOR TESTING
+        max_epochs = 2 # FOR TESTING
     vae_q.train(
-        max_epochs = 100,
+        max_epochs = max_epochs,
         plan_kwargs = {"weight_decay": 0.0}, 
         check_val_every_n_epoch = 10
     ) 

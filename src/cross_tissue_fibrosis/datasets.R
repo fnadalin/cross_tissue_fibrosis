@@ -12,15 +12,15 @@ Kaminski_matrix <- "GSE136831_RawCounts_Sparse.mtx.gz"
 seurat_to_adata_Lavine_cells <- function(obj, out_prefix) {
     load(obj)
     out_seurat <- paste0(out_prefix, ".h5Seurat")
-    SaveH5Seurat(HDCM, filename = out_seurat)
-    Convert(out_seurat, dest = "h5ad")
+    SaveH5Seurat(HDCM, filename = out_seurat, overwrite = TRUE)
+    Convert(out_seurat, dest = "h5ad", overwrite = TRUE)
 }
 
 seurat_to_adata_Lavine_nuclei <- function(obj, out_prefix) {
     load(obj)
     out_seurat <- paste0(out_prefix, ".h5Seurat")
-    SaveH5Seurat(nuclei, filename = out_seurat)
-    Convert(out_seurat, dest = "h5ad")
+    SaveH5Seurat(nuclei, filename = out_seurat, overwrite = TRUE)
+    Convert(out_seurat, dest = "h5ad", overwrite = TRUE)
 }
 
 load_Kaminski <- function(in_dir, out_prefix) {
@@ -38,7 +38,7 @@ load_Kaminski <- function(in_dir, out_prefix) {
     
     obj <- CreateSeuratObject(counts = M, project = "Kaminski", meta.data = meta)
     out_seurat <- paste0(out_prefix, ".h5Seurat")
-    SaveH5Seurat(obj, filename = out_seurat)
-    Convert(out_seurat, dest = "h5ad")
+    SaveH5Seurat(obj, filename = out_seurat, overwrite = TRUE)
+    Convert(out_seurat, dest = "h5ad", overwrite = TRUE)
 }
 
