@@ -58,7 +58,7 @@ cat("Run miloDE on scVI\n")
 q_milo <- create_scvi_mod_query(q_milo_dir, r_name)
 out_miloDE_scvi_prefix <- paste0(q_milo, "_miloDE")
 latent_id <- paste0("X_scvi_", r_name)
-runMiloDE(q_obj, latent_id = latent_id, out_miloDE_scvi_prefix)
+# runMiloDE(q_obj, latent_id = latent_id, out_miloDE_scvi_prefix)
 for (m in meta) {
     # N.B. I can use the cell-type annotation from different embeddings! So do both here
     q_lab <- create_labels_file(q_obj_dir, r_name, m)

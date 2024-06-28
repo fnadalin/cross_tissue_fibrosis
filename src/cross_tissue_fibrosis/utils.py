@@ -10,11 +10,13 @@ def pandas_rename_columns(df, keys, values):
     Rename the columns and add empty columns if keys are not found
     """
     # make sure that there is no self-renaming
-    for i in range(len(keys)):
+    i = 0
+    while i < len(keys):
         if i < len(keys) and keys[i] == values[i]:
             keys = np.delete(keys, i)
             values = np.delete(values, i)
-            i = i-1
+        else:
+            i = i + 1
     # remove duplicated names
     df = df.drop(list(set(values) & set(df.columns)), axis=1)
     # add missing keys if they do not exist yet

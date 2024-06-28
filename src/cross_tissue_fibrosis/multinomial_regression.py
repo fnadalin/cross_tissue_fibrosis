@@ -14,8 +14,8 @@ from sklearn import linear_model
 ### global settings
 
 MAX_ITER = 1000
-# FDR = 0.1
-FDR = 1 # ONLY FOR TESTING
+FDR = 0.1
+# FDR = 1 # ONLY FOR TESTING
 
 ### functions
 

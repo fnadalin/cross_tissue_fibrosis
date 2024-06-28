@@ -7,7 +7,7 @@ Predict cell types (only in the supervised version)
 TODO: deal with soft labels in the reference (for cross-tissue cell-type prediction in the reference)
 """
 
-def param_val(param_file, val):
+def param_val(params, val):
     v = params[0] == val
     return params.loc[v][1][np.where(v)[0][0]]
 
@@ -53,6 +53,7 @@ q_batch_key = param_val(params, "q_batch_key")
 n_top_genes = int(param_val(params, "n_top_genes"))
 flavor      = param_val(params, "flavor")
 meta        = param_val(params, "meta").split(",")
+datasets    = param_val(params, "datasets").split(",")
 
 # print params
 params.to_csv(os.path.join(folder, "params.tsv"))
@@ -67,7 +68,7 @@ q_obj_dir = create_obj_path(folder, q_name, q_batch_key, n_top_genes, flavor)
 
 # preprocessing
 print("Prepare anndata objects")
-adata_ref = prepare_adata_for_scVI(r_obj, r_batch_key, n_top_genes = n_top_genes, flavor = flavor)
+adata_ref = prepare_adata_for_scVI(r_obj, r_batch_key, n_top_genes = n_top_genes, flavor = flavor, datasets = datasets)
 adata_query = prepare_adata_for_scVI(q_obj, r_batch_key, compute_hvg = False)
 # hvg_r = ENSEMBL_features_from_adata(adata_ref) # CellTypist objects do not contain ENSEMBL IDs!!!
 hvg_r = features_from_adata(adata_ref)
@@ -123,7 +124,9 @@ for m in meta:
     q_lab_hard, q_lab_soft = create_labels_file(q_obj_dir, r_name, m)
 
     # write labels to file
-    pd.DataFrame(labels_hard).to_csv(q_lab_hard, sep = "\t")
+    df = pd.DataFrame({m : labels_hard}) # NEW: name the hard labels with the meta ID and the cells with their ID
+    df.index = labels_soft.index
+    df.to_csv(q_lab_hard, sep = "\t") 
     labels_soft.to_csv(q_lab_soft, sep = "\t")
     
 ###### SAVE LATENT EMBEDDINGS #######

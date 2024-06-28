@@ -17,7 +17,7 @@ differential_expression_miloDE <- function(adata_file, latent_id = 'X_scvi', out
     sce <- adata$to_SingleCellExperiment()
     
     # prepare the SingleCellExperiment object for miloDE
-    colnames(sce) <- adata$obs$barcode
+    colnames(sce) <- adata$obs_names # NEW: assign cell names
     names(assays(sce)) <- "counts"
     reducedDim(sce) <- adata$obsm[[latent_id]]
     reducedDimNames(sce) <- latent_id

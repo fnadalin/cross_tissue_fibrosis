@@ -6,7 +6,7 @@ from optparse import OptionParser
 import os
 import sys
 
-usage = "python %prog [options] <in_obj> <category_file> <out_obj>\n"
+usage = "python %prog [options] <in_obj> <category_file> <out_obj> <datasets>\n"
 arg1 = "\nin_obj: input h5ad file containing the original anndata file from CellTypist db\n"
 arg2 = "\ncategory_file: tsv file containing the mapping between cell types and broad category\n"
 arg3 = "\nout_obj: output h5ad file formatted for our pipeline\n"

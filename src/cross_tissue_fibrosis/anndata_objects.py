@@ -8,7 +8,7 @@ import scanpy as sc
 
 ### functions
 
-def prepare_adata_for_scVI(in_obj, batch_key, compute_hvg = True, n_top_genes = 5000, flavor = "seurat_v3"):    
+def prepare_adata_for_scVI(in_obj, batch_key, compute_hvg = True, n_top_genes = 5000, flavor = "seurat_v3", datasets = None):    
     """
     Compute hvgs and return the subsetted object
     
@@ -20,6 +20,10 @@ def prepare_adata_for_scVI(in_obj, batch_key, compute_hvg = True, n_top_genes = 
         compute hvgs within each batch_key and then take the union across batches
     """    
     adata = sc.read_h5ad(in_obj)
+    # extract cells belonging to selected datasets
+    if datasets is not None:
+        adata = adata[adata.obs['dataset'].isin(datasets)].copy()
+    
     adata.layers["counts"] = adata.X.copy()  # preserve counts
     sc.pp.normalize_total(adata, target_sum=1e6)
     sc.pp.log1p(adata)

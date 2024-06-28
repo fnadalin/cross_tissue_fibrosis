@@ -63,8 +63,8 @@ for m in meta:
     for C in C_vec:
         coef, names = da_logit_from_celltype(da_results_ann_file, C)
         write_da_logit_from_celltype(out_miloR_scvi_prefix + "_" + r_name + "_" + m, coef, names, C)
-        coef_df = de_logit_from_celltype(de_results_ann_file, C)
-        write_de_logit_from_celltype(out_miloDE_scvi_prefix + "_" + r_name + "_" + m, coef_df, C)
+#        coef_df = de_logit_from_celltype(de_results_ann_file, C) # FIXME!!!
+#        write_de_logit_from_celltype(out_miloDE_scvi_prefix + "_" + r_name + "_" + m, coef_df, C)
 
 ###### STRATEGY 3: LEARN LATENT SPACE ON REFERENCE + COVARIATE #######
 
@@ -77,8 +77,8 @@ for m in meta:
     for C in C_vec:
         coef, names = da_logit_from_celltype(da_results_ann_file, C)
         write_da_logit_from_celltype(out_miloR_scanvi_prefix + "_" + r_name + "_" + m, coef, names, C)
-        coef_df = de_logit_from_celltype(de_results_ann_file, C)
-        write_de_logit_from_celltype(out_miloDE_scanvi_prefix + "_" + r_name + "_" + m, coef_df, C)
+#        coef_df = de_logit_from_celltype(de_results_ann_file, C)
+#        write_de_logit_from_celltype(out_miloDE_scanvi_prefix + "_" + r_name + "_" + m, coef_df, C)
 
 exit()
 
