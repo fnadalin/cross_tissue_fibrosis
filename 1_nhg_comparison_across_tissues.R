@@ -13,9 +13,13 @@ extract_prefix <- function(params) {
 
     q_milo_dir <- create_milo_path(folder, q_name, q_batch_key, n_top_genes, flavor)
     q_milo <- create_scvi_mod_query(q_milo_dir, r_name)
-    prefix <- paste0(q_milo, "_miloR")
+    prefix1 <- paste0(q_milo, "_miloR")
+    q_milo <- create_scanvi_mod_query(q_milo_dir, r_name, "category")
+    prefix2 <- paste0(q_milo, "_miloR")
+    q_milo <- create_scanvi_mod_query(q_milo_dir, r_name, "cell_type")
+    prefix3 <- paste0(q_milo, "_miloR")
 
-    return(prefix)
+    return(c(prefix1,prefix2,prefix3))
 } 
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -43,45 +47,49 @@ cat("==== Nhood comparison ====\n")
 ### execute
 
 params <- read.table(PARAMS, sep = "=")
-PREFIX <- extract_prefix(params)
-df <- read.table(paste0(PREFIX, "_nhoodGroup_DEA.tsv"), sep = "\t", header = TRUE)
-nhg <- read.table(paste0(PREFIX, "_withNhoodGroups.tsv"), sep = "\t", header = TRUE)
-# obj <- readRDS(paste0(PREFIX, "_SeuratObj.Rds"))
+PREFIXES <- extract_prefix(params)
 
-q_name <- params[params[,1] == "q_name",2]
+for (PREFIX in PREFIXES) {
 
-library("reshape2")
-# library("Seurat")
-# library("ggplot2")
+    df <- read.table(paste0(PREFIX, "_nhoodGroup_DEA.tsv"), sep = "\t", header = TRUE)
+    nhg <- read.table(paste0(PREFIX, "_withNhoodGroups.tsv"), sep = "\t", header = TRUE)
+    # obj <- readRDS(paste0(PREFIX, "_SeuratObj.Rds"))
 
-df$NhoodGroup <- as.character(df$NhoodGroup)
+    q_name <- params[params[,1] == "q_name",2]
 
-idx <- grep("hood", colnames(nhg))
-nhg[,idx] <- apply(nhg[,idx], 2, as.character)
+    library("reshape2")
+    # library("Seurat")
+    # library("ggplot2")
 
-params <- unique(df$NhoodGroupParams)
-param_names <- unlist(lapply(params, function(x) rep(x, length(unique(df$NhoodGroup[df$NhoodGroupParams == x])))))
-group_names <- unlist(lapply(params, function(x) unique(df$NhoodGroup[df$NhoodGroupParams == x])))
+    df$NhoodGroup <- as.character(df$NhoodGroup)
 
-markers_all <- c()
-nhg_logfc_all <- c()
+    idx <- grep("hood", colnames(nhg))
+    nhg[,idx] <- apply(nhg[,idx], 2, as.character)
 
-# N.B. consider only the nhg that have some markers associated with them
-for (param in params) {
+    nhg_params <- unique(df$NhoodGroupParams)
+    param_names <- unlist(lapply(nhg_params, function(x) rep(x, length(unique(df$NhoodGroup[df$NhoodGroupParams == x])))))
+    group_names <- unlist(lapply(nhg_params, function(x) unique(df$NhoodGroup[df$NhoodGroupParams == x])))
 
-    i_labels <- unique(df$NhoodGroup[df$NhoodGroupParams == param])
-    
-    l <- extract_nhood_group_markers(df = df, param = param, LOGFC_MARKER = LOGFC_MARKER)
-    markers <- unlist(lapply(l, function(x) paste(x, collapse = ",")))
-    
-    nhg_logfc <- logFC_nhood_groups(nhg = nhg, param = param)
-    
-    markers_all <- c(markers_all, markers[i_labels])
-    nhg_logfc_all <- c(nhg_logfc_all, nhg_logfc[i_labels])
+    markers_all <- c()
+    nhg_logfc_all <- c()
+
+    # N.B. consider only the nhg that have some markers associated with them
+    for (param in nhg_params) {
+
+        i_labels <- unique(df$NhoodGroup[df$NhoodGroupParams == param])
+        
+        l <- extract_nhood_group_markers(df = df, param = param, LOGFC_MARKER = LOGFC_MARKER)
+        markers <- unlist(lapply(l, function(x) paste(x, collapse = ",")))
+        
+        nhg_logfc <- logFC_nhood_groups(nhg = nhg, param = param)
+        
+        markers_all <- c(markers_all, markers[i_labels])
+        nhg_logfc_all <- c(nhg_logfc_all, nhg_logfc[i_labels])
+    }
+
+    df_nhg <- data.frame(param = param_names, group = group_names, logfc = nhg_logfc_all, markers = markers_all)
+    write.table(df_nhg, file = paste0(PREFIX, "_nhoodGroup_markers.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
 }
-
-df_nhg <- data.frame(param = param_names, group = group_names, logfc = nhg_logfc_all, markers = markers_all)
-write.table(df_nhg, file = paste0(PREFIX, "_nhoodGroup_markers.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
 
 
 q()

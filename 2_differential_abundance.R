@@ -9,7 +9,7 @@ runMiloR <- function(q_obj, latent_id, out_miloR_prefix) {
     da_results_nhoodgroup_file <- paste0(out_miloR_prefix, "_withNhoodGroups.tsv")
     sce_file <- paste0(out_miloR_prefix, ".Rds")
     cell_nhood_ann <- paste0(out_miloR_prefix, "_nhoodGroup_annotation.tsv")
-#    differential_abundance_milo(adata_file = q_obj, latent_id = latent_id, out_prefix = out_miloR_prefix)
+    differential_abundance_milo(adata_file = q_obj, latent_id = latent_id, out_prefix = out_miloR_prefix)
     group_nhoods(sce_file = sce_file, da_results_file = da_results_file, out_file = da_results_nhoodgroup_file)
     plot_nhood_groups(da_results_file = da_results_nhoodgroup_file, out_prefix = out_miloR_prefix)
     assign_cells_to_nhood_groups(sce_file = sce_file, da_results_file = da_results_nhoodgroup_file, cell_nhood_ann = cell_nhood_ann)

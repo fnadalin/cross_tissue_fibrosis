@@ -58,7 +58,7 @@ mean_abs_logFC_nhood_groups_from_data_frame <- function(df1, df2, param1, param2
 }
 
 
-logFC_similarity_nhood_groups_from_data_frame <- function(df1, df2, param1, param2) {
+delta_logFC_nhood_groups_from_data_frame <- function(df1, df2, param1, param2) {
 
     nhg1_logFC <- df1$logfc[df1$param == param1]
     nhg2_logFC <- df2$logfc[df2$param == param2]
@@ -71,7 +71,7 @@ logFC_similarity_nhood_groups_from_data_frame <- function(df1, df2, param1, para
         delta_logFC[i,] <- sapply(names(nhg2_logFC), function(j) abs(nhg1_logFC[i]-nhg2_logFC[j]))
     }
     
-    return(apply(delta_logFC, 2, function(x) 1-x/max(delta_logFC)))
+    return(delta_logFC)
 }
 
 
