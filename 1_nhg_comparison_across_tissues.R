@@ -63,8 +63,11 @@ for (PREFIX in PREFIXES) {
 
     df$NhoodGroup <- as.character(df$NhoodGroup)
 
-    idx <- grep("hood", colnames(nhg))
-    nhg[,idx] <- apply(nhg[,idx], 2, as.character)
+    idx <- grep("NhoodGroup", colnames(nhg))
+    if (length(idx) == 0) {
+        next
+    }
+    nhg[,idx] <- apply(nhg[,idx,drop=FALSE], 2, as.character)
 
     nhg_params <- unique(df$NhoodGroupParams)
     param_names <- unlist(lapply(nhg_params, function(x) rep(x, length(unique(df$NhoodGroup[df$NhoodGroupParams == x])))))

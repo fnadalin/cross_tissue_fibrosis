@@ -112,10 +112,16 @@ for (i in 1:length(PREFIXES1)) {
     df1$NhoodGroup <- as.character(df1$NhoodGroup)
     df2$NhoodGroup <- as.character(df2$NhoodGroup)
 
-    idx <- grep("hood", colnames(nhg1))
-    nhg1[,idx] <- apply(nhg1[,idx], 2, as.character)
-    idx <- grep("hood", colnames(nhg2))
-    nhg2[,idx] <- apply(nhg2[,idx], 2, as.character)
+    idx <- grep("NhoodGroup", colnames(nhg1))
+    if (length(idx) == 0) {
+        next
+    }
+    nhg1[,idx] <- apply(nhg1[,idx,drop=FALSE], 2, as.character)
+    idx <- grep("NhoodGroup", colnames(nhg2))
+    if (length(idx) == 0) {
+        next
+    }
+    nhg2[,idx] <- apply(nhg2[,idx,drop=FALSE], 2, as.character)
 
     nhg_params1 <- unique(df1$NhoodGroupParams)
     nhg_params2 <- unique(df2$NhoodGroupParams)
