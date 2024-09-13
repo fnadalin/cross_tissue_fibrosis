@@ -20,6 +20,7 @@ celltypist_fields = ['Dataset', 'donor_id', 'Curated_annotation', 'disease', 'ti
 Lavine_fields = ['dataset', 'orig.ident', 'Names', 'Condition', 'tissue', 'category']
 Kaminski_fields = ['dataset', 'Subject_Identity', 'Subclass_Cell_Identity', 'Disease_Identity', 'tissue', 'CellType_Category']
 Xavier_fields = ['dataset', 'biosample_id', 'Celltype', 'disease', 'tissue', 'category']
+Helmsley_fields = ['dataset', 'sample.name',  'cell_type_final', 'condition', 'tissue', 'category']
 
 Henderson_healthy = ["GSM4041150_healthy1_cd45+", 
                      "GSM4041151_healthy1_cd45-A", 
@@ -159,6 +160,38 @@ def preprocess_adata_heart_Lavine(cell_obj, nuclei_obj):
     # rename conditions
     di = {'Donor': 'normal', 'DCM': 'disease'}
     adata.obs["condition"].replace(di, inplace=True)
+    
+    del adata.raw # without this, LoadH5Seurat from the h5Seurat object obtained from h5ad will fail!!!
+    return adata.copy()
+
+
+def preprocess_adata_intestine_Helmsley(normal_obj, disease_obj):
+    """
+    Put the Lavine adata format into our format:
+    var - ENSEMBL IDs under "gene_ids"
+    obs - coarse-grained annotation under "category"
+    obs - fine-grained annotation under "cell_type"
+    obs - retain only "sample_ID", "condition", "dataset"
+    Cell ID must be unique 
+    
+    Parameters
+    ----------
+    cell_obj
+        adata object filename containing cells
+    nuclei_obj
+        adata object filename containing nuclei
+    """
+    adata_n = sc.read_h5ad(normal_obj)
+    adata_d = sc.read_h5ad(disease_obj)
+    adata = ad.concat([adata_n, adata_d])
+    
+    # extract, integrate and rename obs fields
+    adata.obs['dataset'] = 'Helmsley'
+    adata.obs['tissue'] = 'intestine'
+    adata.obs['category'] = 'Unknown'
+    df = adata.obs.loc[:,Helmsley_fields]
+    adata.obs = pandas_rename_columns(df, Helmsley_fields, metadata)
+    adata.obs['cell_type'] = adata.obs['cell_type'].to_numpy().astype('str')
     
     del adata.raw # without this, LoadH5Seurat from the h5Seurat object obtained from h5ad will fail!!!
     return adata.copy()

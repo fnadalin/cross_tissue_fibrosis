@@ -106,18 +106,19 @@ write_annotate_neighbourhoods_soft_milo <- function(da.res, da_results_ann_file)
 
 group_nhoods <- function(sce_file, da_results_file, out_file, MAX_LOGFC_DELTA = c(0.5,1,2), NH_OVERLAP = c(1,10,20,50), FDR = 0.1) {
 
-    # TODO: debug the code below - OOM for heart and lung!!!
     sce <- readRDS(sce_file)
     da.res <- read.table(da_results_file, sep = "\t", header = TRUE)
     idx <- which(da.res$SpatialFDR <= FDR) # NEW: only consider significantly DA nhoods
-    for (max_logfc_delta in MAX_LOGFC_DELTA) {
-        for (nh_overlap in NH_OVERLAP) {
-#            da.res <- groupNhoods(sce, da.res, max.lfc.delta = max_logfc_delta, overlap = nh_overlap, 
-#                                  da.fdr = 1, merge.discord = FALSE)
-            # N.B. da.fdr does not select nhoohd for grouping, but sets a criterion on which nhoods should be considered for logFC consistency
-            da.res <- groupNhoods(sce, da.res, max.lfc.delta = max_logfc_delta, overlap = nh_overlap, 
-                                  subset.nhoods = idx, da.fdr = 1, merge.discord = FALSE, compute.new = TRUE)
-            colnames(da.res)[colnames(da.res) == "NhoodGroup"] <- paste0("NhoodGroup_logFC", max_logfc_delta, "_overlap", nh_overlap)
+    if (length(idx) > 0) {
+        for (max_logfc_delta in MAX_LOGFC_DELTA) {
+            for (nh_overlap in NH_OVERLAP) {
+#                da.res <- groupNhoods(sce, da.res, max.lfc.delta = max_logfc_delta, overlap = nh_overlap, 
+#                                      da.fdr = 1, merge.discord = FALSE)
+                # N.B. da.fdr does not select nhoohd for grouping, but sets a criterion on which nhoods should be considered for logFC consistency
+                da.res <- groupNhoods(sce, da.res, max.lfc.delta = max_logfc_delta, overlap = nh_overlap, 
+                                      subset.nhoods = idx, da.fdr = 1, merge.discord = FALSE, compute.new = TRUE)
+                colnames(da.res)[colnames(da.res) == "NhoodGroup"] <- paste0("NhoodGroup_logFC", max_logfc_delta, "_overlap", nh_overlap)
+            }
         }
     }
     write.table(da.res, file = out_file, sep = "\t", quote = FALSE)
@@ -229,7 +230,15 @@ annotate_object <- function(adata_prefix, out_miloR_prefix, meta_files = NULL) {
     
     # "meta.data = FALSE" is to avoid "Error: Missing required datasets 'levels' and 'values'"
     cell_nhood_ann <- paste0(out_miloR_prefix, "_nhoodGroup_annotation.tsv") # by cell
-    df_meta <- read.table(cell_nhood_ann, sep = "\t", header = TRUE)
+#    df_meta <- read.table(cell_nhood_ann, sep = "\t", header = TRUE)
+    ### NEW: consider the case when no nhood group was found -> cell_nhood_ann is empty
+    df_meta <- read.table(cell_nhood_ann, sep = "\t") 
+    if (length(grep("NhoodGroup", colnames(df_meta))) == 0) {
+        tmp <- data.frame(matrix(nrow = nrow(df_meta), ncol = 0))
+        rownames(tmp) <- df_meta[,1]
+        df_meta <- tmp
+    }
+    ###
     if (!is.null(meta_files)) {
         for (meta_file in meta_files) {
             df <- read.table(meta_file, sep = "\t", header = TRUE, check.names = FALSE)[,2,drop=FALSE]
@@ -246,7 +255,7 @@ annotate_object <- function(adata_prefix, out_miloR_prefix, meta_files = NULL) {
 
 # meta can be obj@meta.data
 # use color.by = "cell_type" or color.by = "category"
-plot_nhood_group_annotation <- function(meta, da_prefix, out_miloR_prefix, color.by = "cell_type") {
+plot_nhood_group_annotation <- function(meta, out_miloR_prefix, color.by = "cell_type") {
 
     da_results_nhoodgroup_file <- paste0(out_miloR_prefix, "_withNhoodGroups.tsv") # by nhood
     da.res <- read.table(da_results_nhoodgroup_file, sep = "\t", header = TRUE)

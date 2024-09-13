@@ -11,6 +11,9 @@ Xavier_cond_CO <- c("CO_EPI", "CO_IMM", "CO_STR")
 Xavier_cond_TI <- c("TI_EPI", "TI_IMM", "TI_STR")
 Xavier_meta <- "scp_metadata_combined.v2.txt"
 
+Helmsley_normal <- c()
+Helmsley_disease <- c() 
+
 
 # FIXME: check the output objects
 # FIXME: check the metadata / other info in Lavine because there is inconsistency in # of features!!!
@@ -38,6 +41,22 @@ seurat_to_adata_Lavine_nuclei <- function(obj, out_prefix) {
     meta <- nuclei@meta.data
     meta <- cbind(meta, assay = rep("nuclei", nrow(meta)))
     object <- CreateSeuratObject(counts = nuclei@assays$RNA@counts, project = "Lavine", meta.data = meta)
+    SaveH5Seurat(object, filename = out_seurat, overwrite = TRUE)
+    #############
+    Convert(out_seurat, dest = "h5ad", overwrite = TRUE)
+}
+
+seurat_to_adata_Helmsley <- function(obj, out_prefix, condition) {
+    obj <- readRDS(obj)
+    out_seurat <- paste0(out_prefix, ".h5Seurat")
+#    HDCM@active.assay = "RNA"
+#    SaveH5Seurat(HDCM, filename = out_seurat, overwrite = TRUE)
+    #### NEW ####
+    cells <- colnames(obj)[!is.na(obj@meta.data$cell_type_final)]
+    obj <- subset(obj, cells = cells)
+    meta <- obj@meta.data
+    meta <- cbind(meta, condition = rep(condition, nrow(meta)))
+    object <- CreateSeuratObject(counts = obj@assays$RNA@counts, project = "Helmsley", meta.data = meta)
     SaveH5Seurat(object, filename = out_seurat, overwrite = TRUE)
     #############
     Convert(out_seurat, dest = "h5ad", overwrite = TRUE)
