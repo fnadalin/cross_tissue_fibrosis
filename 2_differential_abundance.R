@@ -30,7 +30,7 @@ markersMiloR <- function(adata_orig, out_miloR_prefix, meta_files, meta) {
     adata_prefix <- gsub(".h5ad", "", adata_orig)
     out_dea_file <- paste0(out_miloR_prefix, "_nhoodGroup_DEA.tsv")
     out_obj_file <- paste0(out_miloR_prefix, "_SeuratObj.Rds")
-    obj <- annotate_object(adata_prefix = adata_prefix, out_miloR_prefix = out_miloR_prefix, meta_files = meta_files)
+    obj <- annotate_object(adata_prefix = adata_prefix, out_miloR_prefix = out_miloR_prefix, meta_files = meta_files) 
     for (m in meta) {
 #        plot_nhood_group_annotation(meta = obj@meta.data, da_results_file = da_results_nhoodgroup_file, 
 #                                    out_prefix = out_miloR_prefix, color.by = m)
@@ -94,6 +94,7 @@ for (m in meta) {
     q_lab_soft <- q_lab[2]
     annMiloR(out_miloR_prefix = out_miloR_scvi_prefix, q_lab_soft = q_lab_soft, r_name = r_name, meta = m)
 }
+# N.B. use the original object here, so that ALL genes will be tested for DEa
 markersMiloR(adata_orig = q_obj_orig, out_miloR_prefix = out_miloR_scvi_prefix, meta_files = meta_files, meta = meta)
 
 # scANVI
