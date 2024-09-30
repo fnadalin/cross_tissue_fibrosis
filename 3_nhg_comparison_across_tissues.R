@@ -85,6 +85,10 @@ cat("==== File generation ====\n")
 df_ann_1 <- as.data.frame(matrix(NA, nrow = length(PARAMS), ncol = 4))
 colnames(df_ann_1) <- c("tissue.id","cell.nhg","cell.category","cell.cell_type")
 df_ann_2 <- df_ann_3 <- df_ann_1
+# NEW: consider only the tissues with at least one nhg found
+PARAM_ID_SCVI <- c()
+PARAM_ID_SCANVI_CAT <- c()
+PARAM_ID_SCANVI_CT <- c()
 for (i in 1:length(PARAMS)) {
 
     params <- read.table(PARAMS[i], sep = "=")
@@ -94,12 +98,21 @@ for (i in 1:length(PARAMS)) {
     field3 <- PREFIXES[4]
     field4 <- PREFIXES[5]
     
-    field2 <- paste0(PREFIXES[1], "_nhoodGroup_annotation.tsv")
-    df_ann_1[i,] <- c(field1, field2, field3, field4)
-    field2 <- paste0(PREFIXES[2], "_nhoodGroup_annotation.tsv")
-    df_ann_2[i,] <- c(field1, field2, field3, field4)
-    field2 <- paste0(PREFIXES[3], "_nhoodGroup_annotation.tsv")
-    df_ann_3[i,] <- c(field1, field2, field3, field4)
+    if (file.exists(paste0(PREFIXES[1], "_nhoodGroup_markers.tsv")) {
+        field2 <- paste0(PREFIXES[1], "_nhoodGroup_annotation.tsv")
+        df_ann_1[i,] <- c(field1, field2, field3, field4)
+        PARAM_ID_SCVI <- c(PARAM_ID_SCVI, i)
+    }
+    if (file.exists(paste0(PREFIXES[2], "_nhoodGroup_markers.tsv")) {
+        field2 <- paste0(PREFIXES[2], "_nhoodGroup_annotation.tsv")
+        df_ann_2[i,] <- c(field1, field2, field3, field4)
+        PARAM_ID_SCANVI_CAT <- c(PARAM_ID_SCANVI_CAT, i)
+    }
+    if (file.exists(paste0(PREFIXES[3], "_nhoodGroup_markers.tsv")) {
+        field2 <- paste0(PREFIXES[3], "_nhoodGroup_annotation.tsv")
+        df_ann_3[i,] <- c(field1, field2, field3, field4)
+        PARAM_ID_SCANVI_CT <- c(PARAM_ID_SCANVI_CT, i)
+    }
 }
 write.table(df_ann_1, file = paste0(OUT_PREFIX, "_scvi_annotation.tsv"), sep = "\t", row.names = FALSE, quote = FALSE)
 write.table(df_ann_2, file = paste0(OUT_PREFIX, "_scanvi_category_annotation.tsv"), sep = "\t", row.names = FALSE, quote = FALSE)
@@ -109,10 +122,36 @@ write.table(df_ann_3, file = paste0(OUT_PREFIX, "_scanvi_cell_type_annotation.ts
 
 for (c in 1:4) {
 
-    df_ann_1 <- as.data.frame(matrix(NA, nrow = length(PARAMS)*(length(PARAMS)-1)/2, ncol = 5))
-    colnames(df_ann_1) <- c("tissue1.id","tissue2.id","nhg.1","nhg.2","pairwise.score")
-    df_ann_2 <- df_ann_3 <- df_ann_1
+    df_ann_1 <- as.data.frame(matrix(NA, nrow = length(PARAM_ID_SCVI)*(length(PARAM_ID_SCVI)-1)/2, ncol = 5))
+    df_ann_2 <- as.data.frame(matrix(NA, nrow = length(PARAM_ID_SCANVI_CAT)*(length(PARAM_ID_SCANVI_CAT)-1)/2, ncol = 5))
+    df_ann_3 <- as.data.frame(matrix(NA, nrow = length(PARAM_ID_SCANVI_CT)*(length(PARAM_ID_SCANVI_CT)-1)/2, ncol = 5))
+    colnames(df_ann_1) <- colnames(df_ann_2) <- colnames(df_ann_3) <- c("tissue1.id","tissue2.id","nhg.1","nhg.2","pairwise.score")
     
+    k <- 1
+    for (i in PARAM_ID_SCVI[1:(length(PARAM_ID_SCVI)-1))) {
+    
+        params1 <- read.table(PARAMS[i], sep = "=")
+        PREFIXES1 <- extract_prefix(params1)
+        
+        field1 <- params1[params1[,1] == "q_name",2]
+        field3 <- paste0(PREFIXES1[1], "_nhoodGroup_markers.tsv")
+        
+        for (j in PARAM_ID_SCVI[(i+1):length(PARAM_ID_SCVI)]) {
+    
+            params2 <- read.table(PARAMS[j], sep = "=")
+            PREFIXES2 <- extract_prefix(params2)
+            PAIR_PREFIXES <- extract_pair_prefix(params1, params2)
+        
+            field2 <- params2[params2[,1] == "q_name",2]
+            field4 <- paste0(PREFIXES2[1], "_nhoodGroup_markers.tsv")
+            field5 <- paste0(PAIR_PREFIXES[1], "_combined", c, "_score.tsv")
+            df_ann_1[k,] <- c(field1, field2, field3, field4, field5)
+            
+            k <- k+1
+        }
+    }
+    write.table(df_ann_1, file = paste0(OUT_PREFIX, "_scvi_combined", c, "_score.tsv"), sep = "\t", row.names = FALSE, quote = FALSE)
+
     k <- 1
     for (i in 1:(length(PARAMS)-1)) {
     
@@ -120,7 +159,7 @@ for (c in 1:4) {
         PREFIXES1 <- extract_prefix(params1)
         
         field1 <- params1[params1[,1] == "q_name",2]
-        field3 <- paste0(PREFIXES1[1], "_nhoodGroup_markers.tsv")
+        field3 <- paste0(PREFIXES1[2], "_nhoodGroup_markers.tsv")
         
         for (j in (i+1):length(PARAMS)) {
     
@@ -129,24 +168,38 @@ for (c in 1:4) {
             PAIR_PREFIXES <- extract_pair_prefix(params1, params2)
         
             field2 <- params2[params2[,1] == "q_name",2]
-            field3 <- paste0(PREFIXES1[1], "_nhoodGroup_markers.tsv")
-            field4 <- paste0(PREFIXES2[1], "_nhoodGroup_markers.tsv")
-            field5 <- paste0(PAIR_PREFIXES[1], "_combined", c, "_score.tsv")
-            df_ann_1[k,] <- c(field1, field2, field3, field4, field5)
-            field3 <- paste0(PREFIXES1[2], "_nhoodGroup_markers.tsv")
             field4 <- paste0(PREFIXES2[2], "_nhoodGroup_markers.tsv")
             field5 <- paste0(PAIR_PREFIXES[2], "_combined", c, "_score.tsv")
             df_ann_2[k,] <- c(field1, field2, field3, field4, field5)
-            field3 <- paste0(PREFIXES1[3], "_nhoodGroup_markers.tsv")
+            
+            k <- k+1
+        }
+    }    
+    write.table(df_ann_2, file = paste0(OUT_PREFIX, "_scanvi_category_combined", c, "_score.tsv"), sep = "\t", row.names = FALSE, quote = FALSE)
+
+    k <- 1
+    for (i in 1:(length(PARAMS)-1)) {
+    
+        params1 <- read.table(PARAMS[i], sep = "=")
+        PREFIXES1 <- extract_prefix(params1)
+        
+        field1 <- params1[params1[,1] == "q_name",2]
+        field3 <- paste0(PREFIXES1[3], "_nhoodGroup_markers.tsv")
+        
+        for (j in (i+1):length(PARAMS)) {
+    
+            params2 <- read.table(PARAMS[j], sep = "=")
+            PREFIXES2 <- extract_prefix(params2)
+            PAIR_PREFIXES <- extract_pair_prefix(params1, params2)
+        
+            field2 <- params2[params2[,1] == "q_name",2]
             field4 <- paste0(PREFIXES2[3], "_nhoodGroup_markers.tsv")
             field5 <- paste0(PAIR_PREFIXES[3], "_combined", c, "_score.tsv")
             df_ann_3[k,] <- c(field1, field2, field3, field4, field5)
             
             k <- k+1
         }
-    }
-    write.table(df_ann_1, file = paste0(OUT_PREFIX, "_scvi_combined", c, "_score.tsv"), sep = "\t", row.names = FALSE, quote = FALSE)
-    write.table(df_ann_2, file = paste0(OUT_PREFIX, "_scanvi_category_combined", c, "_score.tsv"), sep = "\t", row.names = FALSE, quote = FALSE)
+    }  
     write.table(df_ann_3, file = paste0(OUT_PREFIX, "_scanvi_cell_type_combined", c, "_score.tsv"), sep = "\t", row.names = FALSE, quote = FALSE)
 }
 
