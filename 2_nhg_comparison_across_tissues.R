@@ -92,15 +92,8 @@ for (i in 1:length(PREFIXES1)) {
     PREFIX2 <- PREFIXES2[i]
     PREFIX_PAIR <- PREFIXES_PAIR[i]
     
-    df1 <- read.table(paste0(PREFIX1, "_nhoodGroup_DEA.tsv"), sep = "\t", header = TRUE)
     nhg1 <- read.table(paste0(PREFIX1, "_withNhoodGroups.tsv"), sep = "\t", header = TRUE)
-    markers1 <- read.table(paste0(PREFIX1, "_nhoodGroup_markers.tsv"), sep = "\t", header = TRUE)
-    # obj1 <- readRDS(paste0(PREFIX, "_SeuratObj.Rds"))
-
-    df2 <- read.table(paste0(PREFIX2, "_nhoodGroup_DEA.tsv"), sep = "\t", header = TRUE)
     nhg2 <- read.table(paste0(PREFIX2, "_withNhoodGroups.tsv"), sep = "\t", header = TRUE)
-    markers2 <- read.table(paste0(PREFIX2, "_nhoodGroup_markers.tsv"), sep = "\t", header = TRUE)
-    # obj2 <- readRDS(paste0(PREFIX, "_SeuratObj.Rds"))
 
     q_name1 <- params1[params1[,1] == "q_name",2]
     q_name2 <- params2[params2[,1] == "q_name",2]
@@ -108,9 +101,6 @@ for (i in 1:length(PREFIXES1)) {
     library("reshape2")
     # library("Seurat")
     # library("ggplot2")
-
-    df1$NhoodGroup <- as.character(df1$NhoodGroup)
-    df2$NhoodGroup <- as.character(df2$NhoodGroup)
 
     idx <- grep("NhoodGroup", colnames(nhg1))
     if (length(idx) == 0) {
@@ -122,6 +112,17 @@ for (i in 1:length(PREFIXES1)) {
         next
     }
     nhg2[,idx] <- apply(nhg2[,idx,drop=FALSE], 2, as.character)
+
+    df1 <- read.table(paste0(PREFIX1, "_nhoodGroup_DEA.tsv"), sep = "\t", header = TRUE)
+    markers1 <- read.table(paste0(PREFIX1, "_nhoodGroup_markers.tsv"), sep = "\t", header = TRUE)
+    # obj1 <- readRDS(paste0(PREFIX, "_SeuratObj.Rds"))
+
+    df2 <- read.table(paste0(PREFIX2, "_nhoodGroup_DEA.tsv"), sep = "\t", header = TRUE)
+    markers2 <- read.table(paste0(PREFIX2, "_nhoodGroup_markers.tsv"), sep = "\t", header = TRUE)
+    # obj2 <- readRDS(paste0(PREFIX, "_SeuratObj.Rds"))
+
+    df1$NhoodGroup <- as.character(df1$NhoodGroup)
+    df2$NhoodGroup <- as.character(df2$NhoodGroup)
 
     nhg_params1 <- unique(df1$NhoodGroupParams)
     nhg_params2 <- unique(df2$NhoodGroupParams)
@@ -165,9 +166,9 @@ for (i in 1:length(PREFIXES1)) {
         shared_markers[I,J] <- shared_marker_matrix(gene.list.1, gene.list.2)
         
         # compute markers AUC
-    #        M <- mean_shared_markers_auc_parallel(obj1 = obj1, obj2 = obj2, param1 = param1, param2 = param2, 
-    #                                              gene.list.1 = gene.list.1, gene.list.2 = gene.list.2)
-    #        mean_auc[I,J] <- M[i_labels, j_labels]
+#        M <- mean_shared_markers_auc_parallel(obj1 = obj1, obj2 = obj2, param1 = param1, param2 = param2, 
+#                                              gene.list.1 = gene.list.1, gene.list.2 = gene.list.2)
+#        mean_auc[I,J] <- M[i_labels, j_labels]
         
         # compute the average logFC
         M <- mean_abs_logFC_nhood_groups_from_data_frame(df1 = markers1, df2 = markers2, param1 = param1, param2 = param2)
