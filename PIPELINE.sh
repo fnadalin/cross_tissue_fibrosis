@@ -13,8 +13,6 @@ PARAMS=$1
 
 DIR=$( cd $(dirname $0) ; pwd )
 
-# FIXME: for some reason, the pipeline stops after successfully completing the latent embedding
-
 create embeddings
 conda activate scvi-env
 python ${DIR}/1_latent_embedding.py ${PARAMS}

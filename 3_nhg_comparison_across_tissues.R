@@ -98,17 +98,17 @@ for (i in 1:length(PARAMS)) {
     field3 <- PREFIXES[4]
     field4 <- PREFIXES[5]
     
-    if (file.exists(paste0(PREFIXES[1], "_nhoodGroup_markers.tsv")) {
+    if (file.exists(paste0(PREFIXES[1], "_nhoodGroup_markers.tsv"))) {
         field2 <- paste0(PREFIXES[1], "_nhoodGroup_annotation.tsv")
         df_ann_1[i,] <- c(field1, field2, field3, field4)
         PARAM_ID_SCVI <- c(PARAM_ID_SCVI, i)
     }
-    if (file.exists(paste0(PREFIXES[2], "_nhoodGroup_markers.tsv")) {
+    if (file.exists(paste0(PREFIXES[2], "_nhoodGroup_markers.tsv"))) {
         field2 <- paste0(PREFIXES[2], "_nhoodGroup_annotation.tsv")
         df_ann_2[i,] <- c(field1, field2, field3, field4)
         PARAM_ID_SCANVI_CAT <- c(PARAM_ID_SCANVI_CAT, i)
     }
-    if (file.exists(paste0(PREFIXES[3], "_nhoodGroup_markers.tsv")) {
+    if (file.exists(paste0(PREFIXES[3], "_nhoodGroup_markers.tsv"))) {
         field2 <- paste0(PREFIXES[3], "_nhoodGroup_annotation.tsv")
         df_ann_3[i,] <- c(field1, field2, field3, field4)
         PARAM_ID_SCANVI_CT <- c(PARAM_ID_SCANVI_CT, i)
@@ -128,17 +128,17 @@ for (c in 1:4) {
     colnames(df_ann_1) <- colnames(df_ann_2) <- colnames(df_ann_3) <- c("tissue1.id","tissue2.id","nhg.1","nhg.2","pairwise.score")
     
     k <- 1
-    for (i in PARAM_ID_SCVI[1:(length(PARAM_ID_SCVI)-1))) {
+    for (i in 1:(length(PARAM_ID_SCVI)-1)) {
     
-        params1 <- read.table(PARAMS[i], sep = "=")
+        params1 <- read.table(PARAMS[PARAM_ID_SCVI[i]], sep = "=")
         PREFIXES1 <- extract_prefix(params1)
         
         field1 <- params1[params1[,1] == "q_name",2]
         field3 <- paste0(PREFIXES1[1], "_nhoodGroup_markers.tsv")
         
-        for (j in PARAM_ID_SCVI[(i+1):length(PARAM_ID_SCVI)]) {
+        for (j in (i+1):length(PARAM_ID_SCVI)) {
     
-            params2 <- read.table(PARAMS[j], sep = "=")
+            params2 <- read.table(PARAMS[PARAM_ID_SCVI[j]], sep = "=")
             PREFIXES2 <- extract_prefix(params2)
             PAIR_PREFIXES <- extract_pair_prefix(params1, params2)
         
@@ -153,17 +153,17 @@ for (c in 1:4) {
     write.table(df_ann_1, file = paste0(OUT_PREFIX, "_scvi_combined", c, "_score.tsv"), sep = "\t", row.names = FALSE, quote = FALSE)
 
     k <- 1
-    for (i in 1:(length(PARAMS)-1)) {
+    for (i in 1:(length(PARAM_ID_SCANVI_CAT)-1)) {
     
-        params1 <- read.table(PARAMS[i], sep = "=")
+        params1 <- read.table(PARAMS[PARAM_ID_SCANVI_CAT[i]], sep = "=")
         PREFIXES1 <- extract_prefix(params1)
         
         field1 <- params1[params1[,1] == "q_name",2]
         field3 <- paste0(PREFIXES1[2], "_nhoodGroup_markers.tsv")
         
-        for (j in (i+1):length(PARAMS)) {
+        for (j in (i+1):length(PARAM_ID_SCANVI_CAT)) {
     
-            params2 <- read.table(PARAMS[j], sep = "=")
+            params2 <- read.table(PARAMS[PARAM_ID_SCANVI_CAT[j]], sep = "=")
             PREFIXES2 <- extract_prefix(params2)
             PAIR_PREFIXES <- extract_pair_prefix(params1, params2)
         
@@ -178,17 +178,17 @@ for (c in 1:4) {
     write.table(df_ann_2, file = paste0(OUT_PREFIX, "_scanvi_category_combined", c, "_score.tsv"), sep = "\t", row.names = FALSE, quote = FALSE)
 
     k <- 1
-    for (i in 1:(length(PARAMS)-1)) {
+    for (i in 1:(length(PARAM_ID_SCANVI_CT)-1)) {
     
-        params1 <- read.table(PARAMS[i], sep = "=")
+        params1 <- read.table(PARAMS[PARAM_ID_SCANVI_CT[i]], sep = "=")
         PREFIXES1 <- extract_prefix(params1)
         
         field1 <- params1[params1[,1] == "q_name",2]
         field3 <- paste0(PREFIXES1[3], "_nhoodGroup_markers.tsv")
         
-        for (j in (i+1):length(PARAMS)) {
+        for (j in (i+1):length(PARAM_ID_SCANVI_CT)) {
     
-            params2 <- read.table(PARAMS[j], sep = "=")
+            params2 <- read.table(PARAMS[PARAM_ID_SCANVI_CT[j]], sep = "=")
             PREFIXES2 <- extract_prefix(params2)
             PAIR_PREFIXES <- extract_pair_prefix(params1, params2)
         
